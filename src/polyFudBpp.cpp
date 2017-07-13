@@ -8,7 +8,7 @@
 #include "polarUtility.hpp"
 #include "refGeneParser.hpp"
 #include "utr3Finder.hpp"
-#include "utr3FinderFuzzy.hpp"
+#include "polyFud.hpp"
 #include "polyFudBpp.hpp"
 
 extern "C" {
@@ -25,7 +25,7 @@ namespace qi = boost::spirit::qi;
 
 
 /**
- * The truth values obtained from this function are inversed since it is the same class used by Utr3FinderFuzzy.
+ * The truth values obtained from this function are inversed since it is the same class used by PolyFud.
  * That means smaller BBPs yield better truth values.
  * Using the vector index as position reference for the motif (hence we got 6 items in this vector).
  */
@@ -79,9 +79,12 @@ PolyFudBpp::bppVectorPerTranscriptMap PolyFudBpp::utrBppMap = []() {
 		{	
 
 			qi::parse(line.begin(), line.end(), 
-				">" >> +qi::char_, 
+				">" >> qi::omit[+~qi::char_('_')] >> '_' 
+					>> +~qi::char_('_') >> '_' 
+					>> qi::omit[*qi::char_], 
 				transcriptId);
 			//std::cerr << transcriptId << std::endl;
+			transcriptId = "NM_" + transcriptId;
 			lineCount++;
 			break;
 		}
@@ -210,7 +213,7 @@ void PolyFudBpp::foldUtr() {
  * Evaluate potential PAS in the utr sequence.  
  */
 void PolyFudBpp::evaluatePotentialPas() {
-	//Utr3FinderFuzzy should only search forward strand to avoid unnecessary calculations
+	//PolyFud should only search forward strand to avoid unnecessary calculations
 	const bool searchBackward = false;
 	//Give me a map with all the transcripts and their properties
 	const RefGeneProperties & txProps = this->refGen.getValueByKey(this->txId);
@@ -231,7 +234,7 @@ void PolyFudBpp::evaluatePotentialPas() {
 		boost::none,
 		boost::none
 	};
-	Utr3FinderFuzzy candidates(sStruct, searchBackward);
+	PolyFud candidates(sStruct, searchBackward);
 	this->utr3FinderRes = candidates.getPolyaMotifPos();
 }
 
@@ -260,8 +263,8 @@ void PolyFudBpp::calcBppTruthValue() {
  * Return truth value for a certain base pair probability and position.
  */
 double PolyFudBpp::getTruthValue(const double & bpp, const size_t pos) const {
-	const Utr3FinderFuzzy::UracilContent & bppTv = this->PolyFudBpp::motifPositionToTruthValue[pos];
-	Utr3FinderFuzzy::UracilContent::straight interStraight = bppTv.getStraight();
+	const PolyFud::UracilContent & bppTv = this->PolyFudBpp::motifPositionToTruthValue[pos];
+	PolyFud::UracilContent::straight interStraight = bppTv.getStraight();
 	double uB = bppTv.getUpperBound();
 	double lB = bppTv.getLowerBound();
 	double maxTv = bppTv.getMaxTruthValue();

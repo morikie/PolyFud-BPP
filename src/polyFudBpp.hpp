@@ -3,10 +3,10 @@
 
 #include <unordered_map>
 #include <boost/filesystem/path.hpp>
-#include <seqan/seq_io.h>
+#include <seqan/seq_io/fai_index.h>
 #include "../src/refGeneParser.hpp"
 #include "utr3Finder.hpp"
-#include "utr3FinderFuzzy.hpp"
+#include "polyFud.hpp"
 
 extern "C" {
 #include <ViennaRNA/data_structures.h>
@@ -22,7 +22,7 @@ namespace fs = boost::filesystem;
 class PolyFudBpp {
 public:
 	typedef std::string transcriptId;
-	typedef Utr3FinderFuzzy::UracilContent tvFunction;
+	typedef PolyFud::UracilContent tvFunction;
 	typedef Utr3Finder::Utr3FinderResult resultStruct;
 	typedef std::vector<double> utrBppVector;
 	typedef std::unordered_map<transcriptId, utrBppVector> bppVectorPerTranscriptMap;

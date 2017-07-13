@@ -7,7 +7,7 @@
 #include "utr3Finder.hpp"
 
 
-class Utr3FinderFuzzy : public Utr3Finder {
+class PolyFud : public Utr3Finder {
 public:
 	/**
 	 * Class that holds values to calculate the truth value for a certain DSE location.
@@ -94,8 +94,8 @@ protected:
 	bool searchBackward;
 
 public: 
-	Utr3FinderFuzzy(const SeqStruct & sSt, const bool & searchBackward);
-	virtual ~Utr3FinderFuzzy();
+	PolyFud(const SeqStruct & sSt, const bool & searchBackward);
+	virtual ~PolyFud();
 
 	virtual bool isMutationInMotif() const override;
 	virtual std::string getSequence() const override;

@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <boost/filesystem.hpp>
-#include <seqan/seq_io.h>
+#include <seqan/seq_io/fai_index.h>
 #include "refGeneParser.hpp" 
 
 namespace polar {
@@ -21,6 +21,7 @@ std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & f
 size_t mapGenomePosToTxPos(const RefGeneProperties & txProp, size_t genomePos);
 size_t getTxLength(const RefGeneProperties & txProp);
 std::string getSeqAfterUtr(const RefGeneProperties & txProp, seqan::FaiIndex & faiIndex, size_t offset); 
+bool buildIndexFile(const fs::path & f);
 
 } /* namespace utility */
 } /* namespace polar */

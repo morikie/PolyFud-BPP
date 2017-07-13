@@ -164,10 +164,13 @@ std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & f
 		}
 	} else {
 		for (int i = txProp.exonStarts.size() - 1; i >= 0; i--) {
+			//check in which exon the CDS ends
 			if (txProp.cdsEnd >= txProp.exonStarts[i]) {
 				seqan::CharString finalString;
 				seqan::CharString temp;
+				std::cerr << "txProp.cdsEnd: " << txProp.cdsEnd  << ", txProp.exonEnds[" << i << "]: " << txProp.exonEnds[i] << ", chr: " << chr <<  std::endl;
 				seqan::readRegion(finalString, fai, chr, txProp.cdsEnd, txProp.exonEnds[i]);
+				
 				for (size_t j = i + 1; j < txProp.exonStarts.size(); j++) {
 					seqan::readRegion(temp, fai, chr, txProp.exonStarts[j], txProp.exonEnds[j]);
 					seqan::append(finalString, temp);
@@ -244,6 +247,24 @@ std::string getSeqAfterUtr(const RefGeneProperties & txProp, seqan::FaiIndex & f
 	}
 	seqan::toLower(seq);
 	return std::string(seqan::toCString(seq));	
+}
+
+
+/**
+ * Creates the index for a fasta file for seqan's readRegion().
+ */
+bool buildIndexFile(const fs::path & f) {
+	seqan::FaiIndex faiIndex;
+	if (!seqan::build(faiIndex, f.string().c_str())) {
+		std::cerr << "error: could not build index file" << std::endl;
+		return false;
+	}
+	std::string indexPath = f.string() + ".fai";
+	if (!seqan::save(faiIndex, indexPath.c_str() )) {
+		std::cerr << "error: could not save index file" << std::endl;
+		return false;
+	}
+	return true;
 }
 
 
