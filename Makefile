@@ -16,13 +16,13 @@ SRCPATH		= src/
 .PHONY : all
 all : $(TPATH)uTests $(TPATH)perf_polyFud $(TPATH)perf_polyFudBpp
 
-lib/polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp 
+$(TPATH)polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp 
 	@echo "[Compile] polar utility functions"
-	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) src/polarUtility.cpp -o lib/polarUtility.o
+	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) src/polarUtility.cpp -o $(TPATH)polarUtility.o
 
 #unit tests
 $(TPATH)uTests : $(TPATH)uTests.o \
-	lib/polarUtility.o \
+	$(TPATH)polarUtility.o \
 	$(TPATH)polyFud.o \
 	$(TPATH)polyFudBpp.o \
 	$(TPATH)refGeneParser.o \
@@ -52,7 +52,7 @@ $(TPATH)polyFudBpp.o : src/polyFudBpp.hpp src/polyFudBpp.cpp src/polyFud.hpp src
 	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(BOOSTLIB) $(CFLAGS) $(LIBSPOLYFUD) src/polyFudBpp.cpp -o $(TPATH)polyFudBpp.o
 
 $(TPATH)perf_polyFud : $(TPATH)perf_polyFud.o \
-	lib/polarUtility.o \
+	$(TPATH)polarUtility.o \
 	$(TPATH)polyFud.o \
 	$(TPATH)refGeneParser.o \
 	$(TPATH)seqStruct.o \
@@ -69,7 +69,7 @@ $(TPATH)refGeneParser.o : src/refGeneParser.hpp src/refGeneParser.cpp
 	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) src/refGeneParser.cpp -o $(TPATH)refGeneParser.o
 
 $(TPATH)perf_polyFudBpp : $(TPATH)perf_polyFudBpp.o \
-	lib/polarUtility.o \
+	$(TPATH)polarUtility.o \
 	$(TPATH)refGeneParser.o \
 	$(TPATH)utr3Finder.o \
 	$(TPATH)polyFud.o \
