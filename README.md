@@ -2,10 +2,10 @@
 
 This repository contains a prototype of PolyFud-BPP which uses cis-elements of polyadenylation sites(PolyFud) and 3'UTR base pair probabilities to predict functional polyadenylation motifs.
 
-Requirements to compile the project: 
-- Boost.Filesystem, Boost.Spirit, Boost.Foreach, Boost.Optional (used was version 1.58, Boost.Filesystem needs a compiled library)
-- SeqAn's FASTA index (used was version 2.0.0)
-- ViennaRNA (used was version 2.23)
+Requirements to compile the project (paths need to be adjusted manually in the Makefile): 
+- Boost.Filesystem, Boost.Spirit, Boost.Foreach, Boost.Optional (used was version 1.58, Boost.Filesystem needs a compiled library). Link: [Boost 1.58](https://sourceforge.net/projects/boost/files/boost/1.58.0/)
+- SeqAn's FASTA index (used was version 2.0.0). Link: [SeqAn](https://github.com/seqan/seqan), version probably does not matter.
+- ViennaRNA (used was version 2.3.2, utilizes a compiled library RNA.a). Link: [ViennaRNA 2.3.2](https://www.tbi.univie.ac.at/RNA/), bottom of page.
 
 The program also needs the human reference genome. There is a script in the scripts folder that will download it automatically and place it in "bin/reference\_genome/hg19" (requires max 7GB disk space). The chromosome FASTAs can be deleted afterwards.
 
