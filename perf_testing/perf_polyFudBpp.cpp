@@ -78,15 +78,6 @@ PolyFudBpp::bppVectorPerTranscriptMap setNewBppDictionary(fs::path bppFile) {
 	}
 	inFile.close();
 	std::cout << "DONE" << std::endl;
-	/*
-	for (auto & pair : tempMap) {
-		std::cerr << pair.first << ": ";
-		for (auto & item : pair.second) {
-			std::cerr << item << ", ";
-		}
-		std::cerr << std::endl;
-	}
-	*/
 	return tempMap;	
 }
 
@@ -94,7 +85,7 @@ PolyFudBpp::bppVectorPerTranscriptMap setNewBppDictionary(fs::path bppFile) {
 /**
  * Parsing FASTA-like formats
  */
-void getPositiveDataSet(std::vector<PasPosition> & returnVec, const fs::path & positiveFasta) {
+void getIdFromDataSet(std::vector<PasPosition> & returnVec, const fs::path & positiveFasta) {
 	std::ifstream in(positiveFasta.string());
 	std::string line;
 	size_t lineCount = 0;
@@ -126,92 +117,6 @@ void getPositiveDataSet(std::vector<PasPosition> & returnVec, const fs::path & p
 }
 
 
-bool testCase(RefGeneParser & parser) {
-	fs::path referenceGenome = "reference_genome/hg19/reference_genome.fa";
-	fs::path refGenomeIndex = "reference_genome/hg19/reference_genome.fa.fai";
-	seqan::FaiIndex faiIndex;
-	if (! seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str())) {
-		if (polar::utility::buildIndexFile(referenceGenome)) {
-			seqan::open(faiIndex, referenceGenome.c_str(), refGenomeIndex.c_str());
-		} else {
-			std::cerr << "could not open index file for " << referenceGenome << std::endl;
-			return EXIT_FAILURE;
-		}
-	}
-	std::string testId = "NM_004081";
-	std::string testUtr = "taaattccgttgttactcaagatgactgcttcaagggtaaaagagtgcatcgctttagaagaagtttggcagtatttaaatctgttggatcctctcagctatctagtttcatgggaagttgctggttttgaatattaagctaaaagttttccactattacagaaattctgaattttggtaaatcacactgaaactttctgtataacttgtattattagactctctagttttatcttaacactgaaactgttcttcattagatgtttatttagaacctggttctgtgtttaatatatagtttaaagtaacaaataatcgagactgaaagaatgttaagatttatctgcaaggatttttaaaaaattgaaacttgcattttaagtgtttaaaagcaaatactgactttcaaaaaagtttttaaaacctgatttgaaagctaacaattttgatagtctgaacacaagcatttcacttctccaagaagtacctgtgaacagtacaatatttcagtattgagctttgcatttatgatttatctagaaatttacctcaaaagcagaatttttaaaactgcatttttaatcagtggaactcaatgtatagttagctttattgaagtcttatccaaacccagtaaaacagattctaagcaaacagtccaatcagtgagtcataatgtttattcaaagtattttatcttttatctagaatccacatatgtatgtccaatttgattgggatagtagttaggataactaaaattctgggcctaattttttaaagaatccaagacaaactaaactttactgggtatataaccttctcaatgagttaccattcttttttataaaaaaaattgttccttgaaatgctaaacttaatggctgtatgtgaaatttgcaaaatactggtattaaagaacgctgcagcttttttatgtcactcaaaggttaatcggagtatctgaaaggaattgtttttataaaaacattgaagtattagttacttgctataaatagatttttatttttgttttttagcctgttatatttccttctgtaaaataaaatatgtccagaagaggcatgttgtttctagattaggtagtgtcctcattttatattgtgaccacacagctagagcaccagagcccttttgctatactcacagtcttgttttcccagcctcttttactagtctttcaggaggtttgctcttagaactggtgatgtaaagaatggaagtagctgtatgagcagttcaaaggccaagccgtggaatggtagcaatgggatataatacctttctaagggaaacatttgtatcagtatcatttgatctgccatggacatgtgtttaaagtggctttctggcccttctttcaatggcttcttccctaaaacgtggagactctaagttaatgtcgttactatgggccatattactaatgcccactggggtctatgatttctcaaaattttcattcggaatccgaaggatacagtctttaaactttagaattcccaagaaggctttattacacctcagaaattgaaagcaccatgactttgtccattaaaaaattatccatagtttttttagtgcttttaacattccgacatacatcattctgtgattaaatctccagatttctgtaaatgatacctacattctaaagagttaattctaattattccgatatgaccttaaggaaaagtaaaggaataaatttttgtctttgttgaagtatttaatagagtaaggtaaagaagatattaagtccctttcaaaatggaaaattaattctaaactgagaaaaatgttcctactacctattgctgatactgtctttgcataaatgaataaaaataaactttttttcttcaaatgtg";
-	std::string testOffset = "tttttggctttccgatgtaataatgtaaaatggtggggagttgcgtgggaactgtgtaacaaggtttaaattcgtataacaagctttagattcttaaaatgcagaagtataaagttcagtatactaatctgtctgagttagcccataaaagcaaatgtaggtacaaagataagtttaagaggtgcatcaacagcagtgcag";
-	auto txPro = parser.getValueByKey(testId);
-	std::string extractedUtr = polar::utility::getUtrSequence(txPro, faiIndex);
-	
-	size_t testLengthFromGenome = polar::utility::getUtrLength(txPro);
-	//std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen NM_004081: " << testUtr.size() << std::endl;
-	if (extractedUtr != testUtr) {
-		std::cerr << "extractedUtr:" << std::endl << extractedUtr << std::endl << testId << std::endl << testUtr << std::endl;
-		return false;
-	}
-	size_t zero = 25345239;
-	size_t two = 25345237;
-	size_t shouldBeZero = polar::utility::mapGenomePosToTxPos(txPro, zero);
-	size_t shouldBeTwo = polar::utility::mapGenomePosToTxPos(txPro, two);
-	if (shouldBeZero != 0 || shouldBeTwo != 2) {
-		std::cerr << "shouldBeZero: " << shouldBeZero << std::endl;
-		std::cerr << "shouldBeTwo: " << shouldBeTwo << std::endl;
-		//return false;
-	}
-	
-	PolyFudBpp tempObj = PolyFudBpp(testId);
-	std::string tempObjUtr = tempObj.getUtrSeq();
-	std::string tempObjOffsetSeq = tempObj.getOffsetSeq();
-	if (testUtr != tempObjUtr) return false;
-	if (tempObjOffsetSeq != testOffset) {
-		std::cerr << testOffset << std::endl 
-			<< tempObjOffsetSeq << std::endl;
-		return false;
-	}
-	std::string testId2 = "NM_018836";
-	std::string testUtr2 = "ctggccgaagtcttttttacctcctgggggcagggcagacgccgtgtgtctgtttcacggattccgttggtgaacctgtaaaaacaaaacaaacaaaacaaaacaaaaaagacaaaacctaaaactgagctatctaagggggagggtccccgcacctaccacttctgtttgccggtgggaaactcacagagcaggacgctctaggccaaatctatttttgtaaaaatgctcatgcctatgggtgactgccttctcccagagttttctttggagaacagaaagaagaaaggaaagaaaggaaccagaggcagagagacgaggatacccagcgaaagggacgggaggaagcatccgaaacctaggattcgtcctacgattctgaacctgtgccaataataccattatgtgccatgtactgacccgaaaggctcggccgcagagccggggcccagcgaatcacgcagagaaatcttacagaaaacaggggtgggaatctcttccgatagagtcgctatttctggttaatatacatatataaatatataaatacaaacacacacacacactttttttgtactgtagcaatttttgaagatcttaaatgttcctttttaaaaaaaagaattgtgttataggttacaaaatctgatttatttaacatgcttagtatgagcagaataaaccagtgttttctactttggcaactcacgtcacacacatattacacacatgtgcgcattacacacacacaatacacatacatgcatatagacgcatctattggaaatgcagttccacaggtgagcatgttctttctggtgacctggtattccatcaccattcaccccaggggacagcctcgaccgagacaaggaggcccttaaatgacagcctgcatttgctagacggttggtgagtggcatcaaatgtgtgacttactatcttgggccagaactaagaatgccaaggttttatatatgtgtgtgtatatatatatatatatatatatatatatatatatatatgtttgtgtgtgtatatatatatatatatatatatgtttgtgtgtgtatatatatgtttgtgtatatatatacacatatgcatacatatgatttttttttttcatttaagtgttggaagatgctacctaacagccacgttcacatttacgtagctggttgcttacaaacgggcctgagcccctggttgggtgggtggtggattcttggacgtgtgtgtcatacaagcatagactggattaaagaagttttccagttccaaaaattaaaggaatatatcctta";
-	std::string testOffset2 = "tgatgtgtgtgtgtaatatcagggcagaacttagacatacgtgaagggccccggttggtttgaaaacgaaaaatagtcattctgtgtgcaaaccacaaggctgccccagtcaggcagcgccctgacctggcctgtgctgcattgccttcccttgcgcaggtgggcaggtgtggcccgctttttctagggcccaagggtgac";
-	txPro = parser.getValueByKey(testId2);
-	if (! (txPro == parser.emptyRefGeneProperties)) {
-		extractedUtr = polar::utility::getUtrSequence(txPro, faiIndex);
-	} else {
-		return false;
-	}
-	
-	zero = 4715104;
-	two = 4715106;
-	shouldBeZero = polar::utility::mapGenomePosToTxPos(txPro, zero);
-	shouldBeTwo = polar::utility::mapGenomePosToTxPos(txPro, two);
-
-	if (shouldBeZero != 0 || shouldBeTwo != 2) {
-		std::cerr << "shouldBeZero: " << shouldBeZero << std::endl;
-		std::cerr << "shouldBeTwo: " << shouldBeTwo << std::endl;
-		return false;
-	}
-	PolyFudBpp tempObj2 = PolyFudBpp(testId2);
-	std::string tempObj2Utr = tempObj2.getUtrSeq();
-	std::string tempObj2OffsetSeq = tempObj2.getOffsetSeq();
-
-	if (testUtr2 != tempObj2Utr) {
-		std::cerr << testUtr2 << std::endl 
-			<< tempObj2Utr << std::endl;
-		return false;
-	}
-	if (tempObj2OffsetSeq != testOffset2) {
-		std::cerr << testOffset2 << std::endl 
-			<< tempObj2OffsetSeq << std::endl;
-		return false;
-	}
-	
-	testLengthFromGenome = polar::utility::getUtrLength(txPro);
-	//std::cerr << "utrLenFromGenome: " << testLengthFromGenome << " | utrLen " << testId2 << ": " << testUtr2.size() << std::endl;
-	if (extractedUtr != testUtr2) {
-		std::cerr << "extractedUtr:" << std::endl << extractedUtr << std::endl << testId2 << std::endl << testUtr2 << std::endl;
-		return false;
-	}
-	return true;
-}
 
 
 int main (int argc, char * argv[]) {
@@ -223,15 +128,11 @@ int main (int argc, char * argv[]) {
 	fs::path refGenPath = "ucsc_data/refGene.txt";
 	fs::path bppDictTn = "../perf_testing/utrBppPerTranscriptTn.txt";	
 	std::vector<PasPosition> pasVector;
-	getPositiveDataSet(pasVector, positiveDataset);
+	getIdFromDataSet(pasVector, positiveDataset);
 	typedef size_t truePos;
 	std::vector<std::pair<PolyFudBpp, truePos> > resVector;
 	RefGeneParser refGen = RefGeneParser(refGenPath);		
 
-	if (! testCase(refGen)) {
-		std::cerr << "test failed!" << std::endl;
-		return 1;		
-	}
 	std::unordered_map<PolyFud::motifSequence, unsigned int> countDiscardedPas = {
 		{std::string("aataaa"), 0},
 		{std::string("attaaa"), 0},
@@ -317,9 +218,9 @@ int main (int argc, char * argv[]) {
 	}
 	bppOutStream.close();
 
-	std::cout << std::endl << "ignoredPas: " << ignoredPas << std::endl;
-	std::cout << "number of utr longer than " << maxUtrLength << ": " << numTooLongSequences << std::endl;
-	std::cout << "evaluatedPas: " << evaluatedPas << std::endl;
+	//std::cout << std::endl << "ignoredPas: " << ignoredPas << std::endl;
+	//std::cout << "number of utr longer than " << maxUtrLength << ": " << numTooLongSequences << std::endl;
+	//std::cout << "evaluatedPas: " << evaluatedPas << std::endl;
 	
 	size_t total = resVector.size();
 	double threshold = 0.0;
@@ -346,7 +247,7 @@ int main (int argc, char * argv[]) {
 		}	
 		sensitivityOut.close();
 		double sensitivity = (static_cast<double>(total) - notFound) / total;
-		std::cerr << "Sensitivity at threshold: " << std::fixed << std::setprecision(2) << threshold << " | " << sensitivity << ", TP+FN=" << total << ", TP=" << total - notFound << std::endl;
+		std::cerr << "Sensitivity at threshold: " << std::fixed << std::setprecision(2) << threshold << " | " << sensitivity << std::endl;	
 	}
 	
 	//specificity calculations
@@ -376,7 +277,7 @@ int main (int argc, char * argv[]) {
 		if (argc > 1 &&std::string(argv[1]) == "verbose") {
 			std::cerr << pas.seqId + "_" + std::to_string(pasUtrPos) << " | " << "utrLength: " << utrLength << " | ";  
 		}
-		
+		//We use the sequence IDs from the positive dataset. However, we want to randomize the U
 		if (utrLength < maxUtrLength && txPos != UINT_MAX) {
 			//obtain utr sequence
 			std::string utr = polar::utility::getUtrSequence(txProp, faiIndex);
@@ -390,11 +291,10 @@ int main (int argc, char * argv[]) {
 			utr.erase(utr.begin() + pasUtrPos, utr.begin() + pasUtrPos + 6);
 			//shuffle the utr
 			std::random_shuffle(utr.begin(), utr.end());
-			//reinsert the PAS into the utr sequence
+			//re-insert the PAS into the utr sequence
 			utr.insert(pasUtrPos, motif);
 			
-			//std::cerr << pas.seqId + "_" + std::to_string(txLen-utrLength) << std::endl; 
-			PolyFudBpp tempObj = PolyFudBpp(pas.seqId + "_" + std::to_string(txLen-utrLength), utr, utrOffset); //+ "_" + std::to_string(pasUtrPos)
+			PolyFudBpp tempObj = PolyFudBpp(pas.seqId, utr, utrOffset); //+ "_" + std::to_string(pasUtrPos)
 			resVector.push_back(std::make_pair(tempObj, pasUtrPos));
 			evaluatedPas++;
 			std::vector<double> bppVector = tempObj.getMaxBppVector();
@@ -443,15 +343,11 @@ int main (int argc, char * argv[]) {
 		}	
 		specificityOut.close();
 		double specificity = static_cast<double>(notFound) / total;
-		std::cerr << "Specificity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << specificity << ", TP+FP=" << total << ", TP=" << notFound << std::endl;
+		std::cerr << "Specificity at threshold: " << threshold << " | " << std::fixed << std::setprecision(2) << specificity << std::endl;
 	}
 	std::ofstream posSetBppFuzzy("positiveSetBppFuzzy.fa");
 	for(auto & pas : pasVector) {
 		posSetBppFuzzy << pas.seqId << ", " << pas.pos << std::endl;
-	}
-	std::cerr << std::endl;
-	for (auto & discPas : countDiscardedPas) {
-		std::cerr << discPas.first << ": " << discPas.second << std::endl;
 	}
 	return EXIT_SUCCESS;
 }

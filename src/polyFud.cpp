@@ -71,21 +71,21 @@ PolyFud::pasToUcontentMap PolyFud::useUracilMap = {
 
 
 /**
- * Thresholds for the listed PAS hexamers.
+ * Thresholds for the listed PAS hexamers. Set to zero so PolyFudBpp can evaluate any found PAS motif.
  */
 std::unordered_map<PolyFud::motifSequence, double> PolyFud::thresholdMap = {
-	{std::string("aataaa"), 0.90},
-	{std::string("attaaa"), 0.90},
-	{std::string("tataaa"), 0.70},
-	{std::string("agtaaa"), 0.70},
-	{std::string("aagaaa"), 0.70},
-	{std::string("aatata"), 0.70},
-	{std::string("aataca"), 0.70},
-	{std::string("cataaa"), 0.70},
-	{std::string("gataaa"), 0.70},
-	{std::string("aatgaa"), 0.70},
-	{std::string("actaaa"), 0.70},
-	{std::string("aataga"), 0.70}
+	{std::string("aataaa"), 0.00}, //0.9
+	{std::string("attaaa"), 0.00}, //0.9
+	{std::string("tataaa"), 0.00}, //0.7
+	{std::string("agtaaa"), 0.00}, //0.7
+	{std::string("aagaaa"), 0.00}, //0.7
+	{std::string("aatata"), 0.00}, //0.7
+	{std::string("aataca"), 0.00}, //0.7
+	{std::string("cataaa"), 0.00}, //0.7
+	{std::string("gataaa"), 0.00}, //0.7
+	{std::string("aatgaa"), 0.00}, //0.7
+	{std::string("actaaa"), 0.00}, //0.7
+	{std::string("aataga"), 0.00}  //0.7
 };
 
 

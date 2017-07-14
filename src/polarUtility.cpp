@@ -134,7 +134,8 @@ size_t getUtrLength(const RefGeneProperties & txProp) {
 
 
 /**
- * Return the 3' UTR sequence. Always returns the sequence in 5'->3' direction.
+ * Return the 3' UTR sequence. Always returns the sequence in 5'->3' direction. 
+ * "-"-strand sequences are also complemented.
  */
 std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & fai) {
 	std::string returnString = std::string();
@@ -142,6 +143,7 @@ std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & f
 	const std::string & strand = txProp.strand;
 	if (strand == "-") {
 		for (size_t i = 0; i < txProp.exonEnds.size(); i++) {
+			//check in which exon the CDS starts
 			if (txProp.cdsStart <= txProp.exonEnds[i]) {
 				seqan::CharString finalString;
 				seqan::CharString temp;
@@ -168,7 +170,6 @@ std::string getUtrSequence(const RefGeneProperties & txProp, seqan::FaiIndex & f
 			if (txProp.cdsEnd >= txProp.exonStarts[i]) {
 				seqan::CharString finalString;
 				seqan::CharString temp;
-				std::cerr << "txProp.cdsEnd: " << txProp.cdsEnd  << ", txProp.exonEnds[" << i << "]: " << txProp.exonEnds[i] << ", chr: " << chr <<  std::endl;
 				seqan::readRegion(finalString, fai, chr, txProp.cdsEnd, txProp.exonEnds[i]);
 				
 				for (size_t j = i + 1; j < txProp.exonStarts.size(); j++) {

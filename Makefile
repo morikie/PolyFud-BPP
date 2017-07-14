@@ -9,15 +9,9 @@ BOOSTLIB	= -L $(HOME)/Boost/lib
 CXX		= /usr/bin/gcc
 LIBS		= -lboost_filesystem -lboost_system -lboost_iostreams
 LIBSPOLYFUD	= -lboost_filesystem -lboost_system -lboost_iostreams -lRNA
-LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system -lboost_iostreams
+LIBSTEST	= -lboost_unit_test_framework -lboost_filesystem -lboost_system -lboost_iostreams -lRNA
 TPATH		= bin/
 SRCPATH		= src/
-
-OBJS		= $(TPATH)hgvsParser.o \
-	lib/polarUtility.o \
-	$(TPATH)seqStruct.o \
-	$(TPATH)utr3Finder.o \
-	$(TPATH)polyFud.o \
 
 .PHONY : all
 all : $(TPATH)uTests $(TPATH)perf_polyFud $(TPATH)perf_polyFudBpp
@@ -27,27 +21,25 @@ lib/polarUtility.o : src/polarUtility.hpp src/polarUtility.cpp
 	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) src/polarUtility.cpp -o lib/polarUtility.o
 
 #unit tests
-$(TPATH)uTests : $(TPATH)uTests.o $(OBJS) 
+$(TPATH)uTests : $(TPATH)uTests.o \
+	lib/polarUtility.o \
+	$(TPATH)polyFud.o \
+	$(TPATH)polyFudBpp.o \
+	$(TPATH)refGeneParser.o \
+	$(TPATH)seqStruct.o \
+	$(TPATH)utr3Finder.o
 	@echo "[Link] uTests"
-	@$(CC) $^ $(BOOSTLIB) $(LFLAGS) $(LIBSTEST) -o bin/uTests
+	@$(CC) $^ $(BOOST) $(BOOSTLIB) $(SEQAN) $(VIENNA) $(VIENNALIB) $(LFLAGS) $(LIBSTEST) -o bin/uTests
 
-$(TPATH)uTests.o : unit_tests/uTests.cpp
+$(TPATH)uTests.o : unit_tests/uTests.cpp src/seqStruct.hpp src/refGeneParser.hpp src/utr3Finder.hpp perf_testing/perf_polyFud.hpp perf_testing/perf_polyFud.hpp src/polarUtility.hpp
 	@echo "[Compile] uTests"
-	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) unit_tests/uTests.cpp -o $(TPATH)uTests.o
+	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(VIENNA) $(VIENNALIB) $(CFLAGS) unit_tests/uTests.cpp -o $(TPATH)uTests.o
 
-$(TPATH)hgvsParser.o : src/hgvsParser.hpp src/hgvsParser.cpp
-	@echo "[Compile] HGVS Parser"
-	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) src/hgvsParser.cpp -o $(TPATH)hgvsParser.o
-
-$(TPATH)readKnownPolyA.o : perf_testing/readKnownPolyA.hpp perf_testing/readKnownPolyA.cpp 
-	@echo "[Compile] readKnownPolyA"
-	@$(CC) $(BOOST) $(SEQAN) $(LIBPATH) $(CFLAGS) $(LIBS) perf_testing/readKnownPolyA.cpp -o $(TPATH)readKnownPolyA.o
-
-$(TPATH)seqStruct.o : src/seqStruct.hpp src/seqStruct.cpp src/hgvsParser.hpp
+$(TPATH)seqStruct.o : src/seqStruct.hpp src/seqStruct.cpp 
 	@echo "[Compile] SeqStruct"
 	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) src/seqStruct.cpp -o $(TPATH)seqStruct.o
 
-$(TPATH)utr3Finder.o : src/utr3Finder.hpp src/utr3Finder.cpp src/hgvsParser.hpp src/seqStruct.hpp
+$(TPATH)utr3Finder.o : src/utr3Finder.hpp src/utr3Finder.cpp src/seqStruct.hpp
 	@echo "[Compile] UTR3Finder"
 	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) src/utr3Finder.cpp -o $(TPATH)utr3Finder.o
 
@@ -59,22 +51,10 @@ $(TPATH)polyFudBpp.o : src/polyFudBpp.hpp src/polyFudBpp.cpp src/polyFud.hpp src
 	@echo "[Compile] PolyFud-BPP"
 	@$(CC) $(BOOST) $(SEQAN) $(VIENNA) $(BOOSTLIB) $(CFLAGS) $(LIBSPOLYFUD) src/polyFudBpp.cpp -o $(TPATH)polyFudBpp.o
 
-$(TPATH)createTPset.o : perf_testing/createTPset.hpp perf_testing/createTPset.cpp
-	@echo "[Compile] TP data set"@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) perf_testing/createTPset.cpp -o $(TPATH)createTPset.o
-	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) perf_testing/createTPset.cpp -o $(TPATH)createTPset.o
-
-$(TPATH)createTNset.o : perf_testing/createTNset.hpp perf_testing/createTNset.cpp
-	@echo "[Compile] TN data set"
-	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) perf_testing/createTNset.cpp -o $(TPATH)createTNset.o
-
 $(TPATH)perf_polyFud : $(TPATH)perf_polyFud.o \
 	lib/polarUtility.o \
-	$(TPATH)createTPset.o \
-	$(TPATH)createTNset.o \
-	$(TPATH)hgvsParser.o \
 	$(TPATH)polyFud.o \
 	$(TPATH)refGeneParser.o \
-	$(TPATH)readKnownPolyA.o \
 	$(TPATH)seqStruct.o \
 	$(TPATH)utr3Finder.o 
 	@echo "[Link] perf_polyFud"
@@ -89,7 +69,6 @@ $(TPATH)refGeneParser.o : src/refGeneParser.hpp src/refGeneParser.cpp
 	@$(CC) $(BOOST) $(SEQAN) $(BOOSTLIB) $(CFLAGS) $(LIBS) src/refGeneParser.cpp -o $(TPATH)refGeneParser.o
 
 $(TPATH)perf_polyFudBpp : $(TPATH)perf_polyFudBpp.o \
-	$(TPATH)hgvsParser.o \
 	lib/polarUtility.o \
 	$(TPATH)refGeneParser.o \
 	$(TPATH)utr3Finder.o \

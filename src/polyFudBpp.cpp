@@ -145,6 +145,8 @@ PolyFudBpp::PolyFudBpp(const std::string & id,
 	if (utrBppMap.find(this->txId) != utrBppMap.end()) {
 		this->maxBpp = &utrBppMap.find(this->txId)->second;
 	}
+	//altering sequence ID so evaluatePotentialPAS() does not overwrite the randomized UTR sequence.
+	this->txId = this->txId + "_negativeSet";
 	this->startPrediction();
 }
 
@@ -226,7 +228,6 @@ void PolyFudBpp::evaluatePotentialPas() {
 	//std::cerr << utrSeq << sequence << std::endl;	
 	SeqStruct sStruct = {
 		this->utrSeq + this->offsetSeq,
-		boost::none,
 		boost::none,
 		boost::none,
 		boost::none,

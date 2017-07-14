@@ -3,7 +3,6 @@
 
 #include <string>
 #include <boost/optional.hpp>
-#include "hgvsParser.hpp"
 
 
 /**
@@ -13,9 +12,6 @@ struct SeqStruct {
 	const std::string seq;
 	boost::optional<const size_t> utr3Start;
 	boost::optional<const size_t> txLength;
-	//HGVS string parser
-	boost::optional<const HgvsParser> mutation;
-	
 	//information about the sequence
 	boost::optional<const std::string &> chrom;
 	boost::optional<const size_t &> genomicPos;

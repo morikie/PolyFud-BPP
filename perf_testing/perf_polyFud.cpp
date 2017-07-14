@@ -12,8 +12,6 @@
 #include "../src/polarUtility.hpp"
 #include "../src/utr3Finder.hpp"
 #include "../src/polyFud.hpp"
-#include "createTNset.hpp"
-#include "createTPset.hpp"
 #include "perf_polyFud.hpp"
 
 namespace fs = boost::filesystem;
@@ -125,14 +123,7 @@ int main (int argc, char * argv[]) {
 			return EXIT_FAILURE;
 		}
 	}
-	//creating TP data set if not available
-	if (! fs::exists(positiveFasta)) {
-		createTPset(positiveFasta, faiIndex);
-	} 
-	//creating TN data set if not available
-	if (! fs::exists(negativeFasta)) {
-		createTNset(negativeFasta, faiIndex);
-	}
+	
 	//data structures used to store the TP/TN data sets; stores chromosome, position, strand (PasPosition) and 
 	//a 2x 250nt long sequence around the position (500 in total)
 	std::vector<std::pair<PasPosition, SeqStruct> > pasPosAndSeqTP;
@@ -155,7 +146,6 @@ int main (int argc, char * argv[]) {
 		{
 			SeqStruct ss = {
 				line,
-				boost::none,
 				boost::none,
 				boost::none,
 				boost::none,
@@ -217,7 +207,6 @@ int main (int argc, char * argv[]) {
 				boost::none,
 				boost::none,
 				boost::none,
-				boost::none,
 				boost::none
 			};
 			//storing position, chromosome and strand of the TN and the sequence around the TN
@@ -244,6 +233,7 @@ int main (int argc, char * argv[]) {
 		}
 		}
 	}
+	/*
 	std::cerr << "TP pas distribution" << std::endl;
 	BOOST_FOREACH(map::value_type & pair, pasDistributionTP) {
 		std::cerr << pair.first << ": " << pair.second << std::endl;
@@ -253,6 +243,7 @@ int main (int argc, char * argv[]) {
 	BOOST_FOREACH(map::value_type & pair, pasDistributionTN) {
 		std::cerr << pair.first << ": " << pair.second << std::endl;
 	}
+	*/
 	inTN.close();
 	bool writeDataSets = true;
 	//running the prediction multiple times with different thresholds (increased by step) 
@@ -304,8 +295,8 @@ int main (int argc, char * argv[]) {
 			}
 		}
 		sensitivity = static_cast<double>(numTruePositives) / totalTruePositives;
-		if (i == 0) std::cerr << "threshold: defaulti, TP+FN=" << totalTruePositives << ", TP=" << numTruePositives <<  std::endl;
-		else std::cerr << "threshold: " << (i-1)*step << ", TP+FN=" << totalTruePositives << ", TP=" << numTruePositives << std::endl; 	
+		//if (i == 0) std::cerr << "threshold: defaulti, TP+FN=" << totalTruePositives << ", TP=" << numTruePositives <<  std::endl;
+		//else std::cerr << "threshold: " << (i-1)*step << ", TP+FN=" << totalTruePositives << ", TP=" << numTruePositives << std::endl; 	
 		sensitivityVec.push_back(sensitivity);
 		//evaluating every true negative
 		for (auto vecIt = pasPosAndSeqTN.begin(); vecIt != pasPosAndSeqTN.end(); vecIt++) {
@@ -345,13 +336,12 @@ int main (int argc, char * argv[]) {
 
 		
 		specificity = static_cast<double>(numTrueNegatives) / totalTrueNegatives;
-		if (i == 0) std::cerr << "threshold: defaulti, TN+FP=" << totalTrueNegatives << ", TN=" << numTrueNegatives <<  std::endl;
-		else std::cerr << "threshold: " << (i-1)*step << ", TN+FN=" << totalTrueNegatives << ", TN=" << numTrueNegatives << std::endl; 	
+		//if (i == 0) std::cerr << "threshold: defaulti, TN+FP=" << totalTrueNegatives << ", TN=" << numTrueNegatives <<  std::endl;
+		//else std::cerr << "threshold: " << (i-1)*step << ", TN+FN=" << totalTrueNegatives << ", TN=" << numTrueNegatives << std::endl; 	
 		specificityVec.push_back(specificity);
 		//temporary object to alter the static threshold map
 		PolyFud tempObj(SeqStruct{
 			std::string("acgt"),
-			boost::none,
 			boost::none,
 			boost::none,
 			boost::none,
